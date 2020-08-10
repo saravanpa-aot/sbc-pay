@@ -26,7 +26,7 @@ from pay_api.models import Payment as PaymentModel
 from pay_api.models import db, ma
 from pay_api.services import TransactionService
 from pay_api.services import PaymentService
-from utils.logging import setup_logging
+from utils.logger import setup_logging
 
 import config
 
@@ -91,7 +91,7 @@ def update_stale_payments(app):
     """
     stale_transactions = PaymentTransactionModel.find_stale_records(hours=4)
     if len(stale_transactions) == 0:
-        app.logger.info(f'Stale Transaction Job Ran at {datetime.datetime.now()}.But No records found!')
+        app.logger.info('saying Helo')
     for transaction in stale_transactions:
         try:
             app.logger.info(
@@ -113,7 +113,7 @@ def delete_marked_payments(app):
     """
     payments_to_delete = PaymentModel.find_payments_marked_for_delete()
     if len(payments_to_delete) == 0:
-        app.logger.info(f'Delete Payment Job Ran at {datetime.datetime.now()}.But No records found!')
+        app.logger.info('some erro')
     for payment in payments_to_delete:
         try:
             app.logger.info('Delete Payment Job found records.Payment Id: {}'.format(payment.id))
