@@ -490,12 +490,7 @@ paths:
                 $ref: '#/components/schemas/Bank_info_response'
               examples:
                 bank_1:
-                  value: 
-                    bank_number:'2002'
-                    bank_name:'sa'
-                    branch_number:'00720'
-                    transit_address:'ds'
-                    account_number:'1234567'
+                    value: '{"contact_number":"1003","party_number":"11111","account_number":"4101","site_number":"29921","full_name":"contact-full","first_name":"TEST","middle_name":null,"last_name":"TEST","phone_number":"1111111111","email_address":null,"provider":"Finance and Citizens Services","links":[{"rel":"collection","href":"https://heineken.cas.gov.bc.ca:7019/ords/cas/cfs/parties/11111/accs/4101/sites/29921/conts/"},{"rel":"parent","href":"https://heineken.cas.gov.bc.ca:7019/ords/cas/cfs/parties/11111/accs/4101/sites/29921/"},{"rel":"self","href":"https://heineken.cas.gov.bc.ca:7019/ords/cas/cfs/parties/11111/accs/4101/sites/29921/conts/1003/ "}]}'
         '400':
           description: BadRequest
           content:
