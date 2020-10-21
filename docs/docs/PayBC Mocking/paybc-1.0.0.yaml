@@ -491,7 +491,7 @@ paths:
               examples:
                 bank_1:
                   value: 
-                    bank_number:'2001'
+                    bank_number:'2002'
                     bank_name:'sa'
                     branch_number:'00720'
                     transit_address:'ds'
