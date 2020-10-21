@@ -20,6 +20,7 @@ from flask_restplus import Namespace, Resource, cors
 from pay_api.exceptions import BusinessException, error_to_response
 from pay_api.schemas import utils as schema_utils
 from pay_api.services import CFSService
+from pay_api.utils.auth import jwt as _jwt
 from pay_api.utils.errors import Error
 from pay_api.utils.util import cors_preflight
 
@@ -33,6 +34,7 @@ class BankAccounts(Resource):
 
     @staticmethod
     @cors.crossdomain(origin='*')
+    @_jwt.requires_auth
     def post():
         """Create the payment account records."""
         current_app.logger.info('<BankAccounts.post')
@@ -44,7 +46,7 @@ class BankAccounts(Resource):
         if not valid_format:
             return error_to_response(Error.INVALID_REQUEST, invalid_params=schema_utils.serialize(errors))
         try:
-            response, status = CFSService.validate_bank_account(request_json), HTTPStatus.CREATED
+            response, status = CFSService.validate_bank_account(request_json), HTTPStatus.OK
         except BusinessException as exception:
             return exception.response()
         current_app.logger.debug('>Account.post')
