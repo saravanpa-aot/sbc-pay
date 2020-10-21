@@ -489,18 +489,12 @@ paths:
               examples:
                 account:
                   value:
-                    authAccountId: 1
-                    authAccountName: tester
-                    bcolAccount:
-                    bcolUserId:
-                    billable: true
-                    credit:
-                    id: 64
-                    runningBalance:
-                    statementNotificationEnabled: false
-                    versions:
-                      - id: 64
-                        transactionId: 115
+                    bank_number: '2001'
+                    bank_name: 'sa'
+                    branch_number: '00720'
+                    transit_address: 'ds'
+                    account_number: '1234567'
+                    CAS-Returned-Messages: '0001 - Bank Number is Invalid'
         '400':
           description: BadRequest
           content:
