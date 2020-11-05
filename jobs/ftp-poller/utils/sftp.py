@@ -11,18 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""This module is a wrapper for SFTP."""
-import io
-import uuid
-from datetime import timedelta
-from pysftp import Connection, CnOpts
-
+"""This module is a wrapper for SFTP Connection object."""
 from flask import current_app
-from minio import Minio
+from pysftp import Connection, CnOpts
 
 
 class SFTPService:
-    """SFTP  class."""
+    """SFTP  Service class."""
 
     __instance: Connection = None
 
@@ -35,14 +30,17 @@ class SFTPService:
 
     @staticmethod
     def _connect() -> Connection:
-        print('---------shouldnt appear more than one------********************------------------------------')
+
         cnopts = CnOpts()
-        cnopts.hostkeys = None
+        # only for local development set this to false .
+        if current_app.config.get('SFTP_VERIFY_HOST') == 'False':
+            cnopts.hostkeys = None
         sftp_host: str = current_app.config.get('CAS_SFTP_HOST')
-        sftp_username = current_app.config.get('CAS_SFTP_USER_NAME')
-        sftp_password = current_app.config.get('CAS_SFTP_PASSWORD')
-        private_key: str = current_app.config.get('BCREG_FTP_PRIVATE_KEY')
-        private_key_pass: str = current_app.config.get('BCREG_FTP_PRIVATE_KEY_PASSPHRASE')
-        sftp_connection = Connection(host=sftp_host, username=sftp_username, password=sftp_password,
-                                     cnopts=cnopts)
+        sft_credentails = {
+            'username': current_app.config.get('CAS_SFTP_USER_NAME'),
+            'password': current_app.config.get('CAS_SFTP_PASSWORD'),
+            'private_key': current_app.config.get('BCREG_FTP_PRIVATE_KEY'),
+            'private_key_pass': current_app.config.get('BCREG_FTP_PRIVATE_KEY_PASSPHRASE')
+        }
+        sftp_connection = Connection(host=sftp_host, **sft_credentails, cnopts=cnopts)
         return sftp_connection

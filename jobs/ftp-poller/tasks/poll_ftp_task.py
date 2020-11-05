@@ -34,24 +34,38 @@ class PollFtpTask:  # pylint:disable=too-few-public-methods
         1. List Files.
         2. If file
         """
-        ftp_dir: str = current_app.config.get('CAS_SFTP_DIRECTORY')
-        sftp_client = SFTPService.get_connection()
-        file_list: List[SFTPAttributes] = sftp_client.listdir_attr(ftp_dir)
-        print('-------file_list', file_list)
-        current_app.logger.info(f'Found {len(file_list)} to be copied.')
-        payment_file_list: List[str] = []
-        for file in file_list:
-            file_name = file.filename
-            file_full_name = ftp_dir + '/' + file_name
-            current_app.logger.info(f'Processing file  {file_name} started-----.')
-            file_size = file.st_size
-            if PollFtpTask._is_valid_payment_file(file_full_name):
-                with sftp_client.open(file_full_name) as f:
-                    value_as_bytes = f.read()
-                    MinioService.put_object(value_as_bytes, file_name, file_size)
+        try:
+            ftp_dir: str = current_app.config.get('CAS_SFTP_DIRECTORY')
+            sftp_client = SFTPService.get_connection()
+            file_list: List[SFTPAttributes] = sftp_client.listdir_attr(ftp_dir)
+            current_app.logger.info(f'Found {len(file_list)} to be copied.')
+            payment_file_list: List[str] = []
+            for file in file_list:
+                file_name = file.filename
+                file_full_name = ftp_dir + '/' + file_name
+                current_app.logger.info(f'Processing file  {file_name} started-----.')
+                if PollFtpTask._is_valid_payment_file(file_full_name):
+                    cls.upload_to_minio(file, file_full_name, sftp_client)
                     payment_file_list.append(file_name)
 
-        PollFtpTask._post_process(payment_file_list)
+            if len(payment_file_list) >= 0:
+                PollFtpTask._post_process(payment_file_list)
+
+        except Exception as e:  # pylint: disable=broad-except
+            current_app.logger.error(e)
+        finally:
+            SFTPService.get_connection().close()
+
+    @classmethod
+    def upload_to_minio(cls, file, file_full_name, sftp_client):
+        with sftp_client.open(file_full_name) as f:
+            value_as_bytes = f.read()
+            try:
+                MinioService.put_object(value_as_bytes, file.filename, file.st_size)
+            except Exception as e:  # pylint: disable=broad-except
+                current_app.logger.error(e)
+                current_app.logger.error(f'upload to minio failed for the file: {file_full_name}')
+                raise
 
     @classmethod
     def _post_process(cls, payment_file_list: List[str]):
@@ -60,6 +74,7 @@ class PollFtpTask:  # pylint:disable=too-few-public-methods
         2.Send a message to queue
         """
         cls.move_file_to_backup(payment_file_list)
+        cls.publish_to_queue(payment_file_list)
 
     @classmethod
     def move_file_to_backup(cls, payment_file_list):
@@ -74,19 +89,18 @@ class PollFtpTask:  # pylint:disable=too-few-public-methods
         sftp_client = SFTPService.get_connection()
         return sftp_client.isfile(file_name)
 
-
     @classmethod
-    def publis_to_queue(cls, file_name , minio_location):
-        # Publish message to the Queue, saying account has been created. Using the event spec.
+    def publish_to_queue(cls, file_names: List[str]):
+        # Publish message to the Queue, saying file has been uploaded. Using the event spec.
         queue_data = {
-            'fileName': file_name,
+            'fileName': ','.join(file_names),
             'file_source': 'MINIO',
-            'location': minio_location
+            'location': current_app.config['MINIO_BUCKET_NAME']
         }
 
         payload = {
             'specversion': '1.x-wip',
-            'type': 'bc.registry.payment.' + 'paymentFileTypeUploaded' ,
+            'type': 'bc.registry.payment.' + 'paymentFileTypeUploaded',
             'time': f'{datetime.now()}',
             'datacontenttype': 'application/json',
             'data': queue_data
@@ -100,6 +114,6 @@ class PollFtpTask:  # pylint:disable=too-few-public-methods
             current_app.logger.error(e)
             current_app.logger.warning(
                 f'Notification to Queue failed for the file '
-                f': {file_name}',
+                f': {",".join(file_names)}',
                 e)
             raise

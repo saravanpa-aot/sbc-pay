@@ -78,6 +78,7 @@ class _Config(object):  # pylint: disable=too-few-public-methods
     CAS_SFTP_PASSWORD = os.getenv('CAS_SFTP_PASSWORD', 'pass')
     CAS_SFTP_DIRECTORY = os.getenv('CAS_SFTP_DIRECTORY', '/upload')
     CAS_SFTP_BACKUP_DIRECTORY = os.getenv('CAS_SFTP_BACKUP_DIRECTORY', '/backup')
+    SFTP_VERIFY_HOST = os.getenv('SFTP_VERIFY_HOST', 'True')
 
     # NATS Config
     NATS_SERVERS = os.getenv('NATS_SERVERS', 'nats://127.0.0.1:4222').split(',')
