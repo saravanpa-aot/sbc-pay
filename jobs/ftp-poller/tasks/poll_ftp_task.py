@@ -37,20 +37,21 @@ class PollFtpTask:  # pylint:disable=too-few-public-methods
         """
         payment_file_list: List[str] = []
         try:
+
             ftp_dir: str = current_app.config.get('CAS_SFTP_DIRECTORY')
             sftp_client = SFTPService.get_connection()
+
             file_list: List[SFTPAttributes] = sftp_client.listdir_attr(ftp_dir)
             current_app.logger.info(f'Found {len(file_list)} to be copied.')
             for file in file_list:
                 file_name = file.filename
-                print('0000000000---------', file_name)
                 file_full_name = ftp_dir + '/' + file_name
-                current_app.logger.info(f'Processing file  {file_name} started-----.')
+                current_app.logger.info(f'Processing file  {file_full_name} started-----.')
                 if PollFtpTask._is_valid_payment_file(file_full_name):
                     cls.upload_to_minio(file, file_full_name, sftp_client)
                     payment_file_list.append(file_name)
 
-            if len(payment_file_list) >= 0:
+            if len(payment_file_list) > 0:
                 PollFtpTask._post_process(payment_file_list)
 
         except Exception as e:  # pylint: disable=broad-except
@@ -95,10 +96,11 @@ class PollFtpTask:  # pylint:disable=too-few-public-methods
         return sftp_client.isfile(file_name)
 
     @classmethod
-    def publish_to_queue(cls, file_names: List[str]):
+    def publish_to_queue(cls, file_names_list: List[str]):
         # Publish message to the Queue, saying file has been uploaded. Using the event spec.
+        file_names: str = ','.join(file_names_list)
         queue_data = {
-            'fileName': ','.join(file_names),
+            'fileName': file_names,
             'file_source': 'MINIO',
             'location': current_app.config['MINIO_BUCKET_NAME']
         }
@@ -106,6 +108,8 @@ class PollFtpTask:  # pylint:disable=too-few-public-methods
         payload = {
             'specversion': '1.x-wip',
             'type': 'bc.registry.payment.' + 'paymentFileTypeUploaded',
+            'source': file_names,
+            'id': file_names,
             'time': f'{datetime.now()}',
             'datacontenttype': 'application/json',
             'data': queue_data

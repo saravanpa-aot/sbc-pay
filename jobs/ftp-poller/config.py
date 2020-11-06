@@ -124,8 +124,8 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
     CAS_SFTP_HOST = 'localhost'
     CAS_SFTP_USER_NAME = 'ftp_user'
     CAS_SFTP_PASSWORD = 'ftp_pass'
-    CAS_SFTP_DIRECTORY = 'payment-folder'
-    CAS_SFTP_BACKUP_DIRECTORY = ''
+    CAS_SFTP_DIRECTORY = 'paymentfolder'
+    CAS_SFTP_BACKUP_DIRECTORY = 'backup'
     SFTP_VERIFY_HOST = 'False'
     CAS_SFTP_PORT = 2222
 

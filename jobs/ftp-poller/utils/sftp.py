@@ -24,7 +24,7 @@ class SFTPService:
     @staticmethod
     def get_connection() -> Connection:
         """Return a SFTP connection."""
-        if not SFTPService.__instance:
+        if not SFTPService.__instance or not SFTPService.__instance._sftp_live:
             SFTPService.__instance = SFTPService._connect()
         return SFTPService.__instance
 
