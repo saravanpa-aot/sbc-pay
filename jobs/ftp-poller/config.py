@@ -79,6 +79,7 @@ class _Config(object):  # pylint: disable=too-few-public-methods
     CAS_SFTP_DIRECTORY = os.getenv('CAS_SFTP_DIRECTORY', '/upload')
     CAS_SFTP_BACKUP_DIRECTORY = os.getenv('CAS_SFTP_BACKUP_DIRECTORY', '/backup')
     SFTP_VERIFY_HOST = os.getenv('SFTP_VERIFY_HOST', 'True')
+    CAS_SFTP_PORT = os.getenv('CAS_SFTP_PORT', 22)
 
     # NATS Config
     NATS_SERVERS = os.getenv('NATS_SERVERS', 'nats://127.0.0.1:4222').split(',')
@@ -110,19 +111,6 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
     DEBUG = True
     TESTING = True
     # POSTGRESQL
-    DB_USER = os.getenv('DATABASE_TEST_USERNAME', '')
-    DB_PASSWORD = os.getenv('DATABASE_TEST_PASSWORD', '')
-    DB_NAME = os.getenv('DATABASE_TEST_NAME', '')
-    DB_HOST = os.getenv('DATABASE_TEST_HOST', '')
-    DB_PORT = os.getenv('DATABASE_TEST_PORT', '5432')
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_TEST_URL',
-                                        'postgresql://{user}:{password}@{host}:{port}/{name}'.format(
-                                            user=DB_USER,
-                                            password=DB_PASSWORD,
-                                            host=DB_HOST,
-                                            port=int(DB_PORT),
-                                            name=DB_NAME,
-                                        ))
 
     SERVER_NAME = 'localhost:5001'
 
@@ -132,6 +120,14 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
     CFS_CLIENT_ID = 'TEST'
     CFS_CLIENT_SECRET = 'TEST'
     USE_DOCKER_MOCK = os.getenv('USE_DOCKER_MOCK', None)
+
+    CAS_SFTP_HOST = 'localhost'
+    CAS_SFTP_USER_NAME = 'ftp_user'
+    CAS_SFTP_PASSWORD = 'ftp_pass'
+    CAS_SFTP_DIRECTORY = 'payment-folder'
+    CAS_SFTP_BACKUP_DIRECTORY = ''
+    SFTP_VERIFY_HOST = 'False'
+    CAS_SFTP_PORT = 2222
 
 
 class ProdConfig(_Config):  # pylint: disable=too-few-public-methods

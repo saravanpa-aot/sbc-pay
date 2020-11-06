@@ -18,18 +18,26 @@ from datetime import timedelta
 
 from flask import current_app
 from minio import Minio
+from urllib3 import HTTPResponse
 
 
 class MinioService:
     """Document Storage class."""
 
     @staticmethod
-    def put_object(value_as_bytes, file_name: str, file_size: int = 0) -> dict:
+    def put_object(value_as_bytes, file_name: str, file_size: int = 0):
         """Return a pre-signed URL for new doc upload."""
         current_app.logger.debug(f'Creating pre-signed URL for {file_name}')
         minio_client: Minio = MinioService._get_client()
         value_as_stream = io.BytesIO(value_as_bytes)
         minio_client.put_object(current_app.config['MINIO_BUCKET_NAME'], file_name, value_as_stream, file_size)
+
+    @staticmethod
+    def get_object(file_name: str) -> HTTPResponse:
+        """Return a pre-signed URL for new doc upload."""
+        current_app.logger.debug(f'Creating pre-signed URL for {file_name}')
+        minio_client: Minio = MinioService._get_client()
+        return minio_client.get_object(current_app.config['MINIO_BUCKET_NAME'], file_name)
 
     @staticmethod
     def _get_client() -> Minio:

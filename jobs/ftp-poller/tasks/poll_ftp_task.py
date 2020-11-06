@@ -16,6 +16,7 @@ from datetime import datetime
 from typing import List
 
 from flask import current_app
+from paramiko import SFTPFile
 from paramiko.sftp_attr import SFTPAttributes
 from pay_api.services.queue_publisher import publish_response
 
@@ -34,14 +35,15 @@ class PollFtpTask:  # pylint:disable=too-few-public-methods
         1. List Files.
         2. If file
         """
+        payment_file_list: List[str] = []
         try:
             ftp_dir: str = current_app.config.get('CAS_SFTP_DIRECTORY')
             sftp_client = SFTPService.get_connection()
             file_list: List[SFTPAttributes] = sftp_client.listdir_attr(ftp_dir)
             current_app.logger.info(f'Found {len(file_list)} to be copied.')
-            payment_file_list: List[str] = []
             for file in file_list:
                 file_name = file.filename
+                print('0000000000---------', file_name)
                 file_full_name = ftp_dir + '/' + file_name
                 current_app.logger.info(f'Processing file  {file_name} started-----.')
                 if PollFtpTask._is_valid_payment_file(file_full_name):
@@ -55,10 +57,13 @@ class PollFtpTask:  # pylint:disable=too-few-public-methods
             current_app.logger.error(e)
         finally:
             SFTPService.get_connection().close()
+        return payment_file_list
 
     @classmethod
     def upload_to_minio(cls, file, file_full_name, sftp_client):
+        f: SFTPFile
         with sftp_client.open(file_full_name) as f:
+            f.prefetch()
             value_as_bytes = f.read()
             try:
                 MinioService.put_object(value_as_bytes, file.filename, file.st_size)

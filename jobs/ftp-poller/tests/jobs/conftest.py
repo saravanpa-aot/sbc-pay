@@ -142,14 +142,9 @@ def session(app, db):  # pylint: disable=redefined-outer-name, invalid-name
 def auto(docker_services, app):
     """Spin up docker instances."""
     if app.config['USE_DOCKER_MOCK']:
-        docker_services.start('keycloak')
-        docker_services.wait_for_service('keycloak', 8081)
-        docker_services.start('bcol')
-        docker_services.start('auth')
-        docker_services.start('paybc')
-        docker_services.start('reports')
         docker_services.start('proxy')
         docker_services.start('nats')
+        docker_services.start('sftp')
         time.sleep(2)
 
 
