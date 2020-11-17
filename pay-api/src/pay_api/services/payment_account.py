@@ -304,9 +304,10 @@ class PaymentAccount():  # pylint: disable=too-many-instance-attributes, too-man
         payment_account.bcol_user_id = account_request.get('bcolUserId', None)
 
         if not payment_method or payment_method == PaymentMethod.PAD.value:
-            payment_method, activation_date = PaymentAccount._get_payment_based_on_pad_activation(payment_account)
-            payment_account.pad_activation_date = activation_date
-            payment_account.payment_method = payment_method
+            new_payment_method, new_activation_date = \
+                PaymentAccount._get_payment_based_on_pad_activation(payment_account)
+            payment_account.pad_activation_date = new_activation_date
+            payment_account.payment_method = new_payment_method
 
         payment_info = account_request.get('paymentInfo')
         billable = payment_info.get('billable', True)

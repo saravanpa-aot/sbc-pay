@@ -19,7 +19,7 @@ from typing import List
 from flask import current_app
 from pay_api.models import CfsAccount as CfsAccountModel
 from pay_api.models import PaymentAccount as PaymentAccountModel
-from pay_api.utils.enums import CfsAccountStatus
+from pay_api.utils.enums import CfsAccountStatus, PaymentMethod
 
 
 class ActivatePadAccountTask:  # pylint: disable=too-few-public-methods
@@ -53,3 +53,7 @@ class ActivatePadAccountTask:  # pylint: disable=too-few-public-methods
             if is_activation_period_over:
                 pending_account.status = CfsAccountStatus.ACTIVE.value
                 pending_account.save()
+                # If account was in BCOL , change it to PAD
+                if pay_account.payment_method != PaymentMethod.PAD.value:
+                    pay_account.payment_method = PaymentMethod.PAD.value
+                    pay_account.save()
