@@ -21,7 +21,6 @@ rather than reading environment variables directly or by accessing this configur
 
 import os
 import sys
-from datetime import datetime
 
 from dotenv import find_dotenv, load_dotenv
 
@@ -172,9 +171,9 @@ class _Config():  # pylint: disable=too-few-public-methods
     # Secret key for encrypting bank account
     ACCOUNT_SECRET_KEY = os.getenv('ACCOUNT_SECRET_KEY')
 
-    _HOLIDAYS = os.getenv('HOLIDAYS', default=['2021-01-01', '2021-2-15', '2021-04-15', '2021-05-24', '2021-01-24'])
-
-    HOLIDAYS_IN_DATE_FORMAT = [datetime.strptime(date, '%Y-%m-%d').date() for date in _HOLIDAYS]
+    HOLIDAYS_LIST = os.getenv('HOLIDAYS', default='2021-Jan-01,2021-Feb-15,2021-Apr-02,2021-May-24,2021-Jul-1, '
+                                                  '2021-Jul-1, 2021-Aug-2, 2021-Sep-6,2021-Oct-11, 2021-Nov-11, '
+                                                  '2021-Dec-25')
 
     TESTING = False
     DEBUG = True
@@ -300,6 +299,10 @@ NrQw+2OdQACBJiEHsdZzAkBcsTk7frTH4yGx0VfHxXDPjfTj4wmD6gZIlcIr9lZg
     PAD_CONFIRMATION_PERIOD_IN_DAYS = 3
     # Secret key for encrypting bank account
     ACCOUNT_SECRET_KEY = 'mysecretkeyforbank'
+
+    HOLIDAYS_LIST = os.getenv('HOLIDAYS', default='2021-Jan-01,2021-Feb-15,2021-Apr-02,2021-May-24,2021-Jul-1, '
+                                                  '2021-Jul-1, 2021-Aug-2, 2021-Sep-6,2021-Oct-11, 2021-Nov-11, '
+                                                  '2021-Dec-25')
 
 
 class ProdConfig(_Config):  # pylint: disable=too-few-public-methods
