@@ -14,6 +14,7 @@
 """Abstract class for payment system implementation."""
 
 from abc import ABC, abstractmethod
+from datetime import datetime
 from typing import Any, Dict
 
 from flask import current_app
@@ -24,7 +25,7 @@ from pay_api.services.invoice import Invoice
 from pay_api.services.invoice_reference import InvoiceReference
 from pay_api.services.payment import Payment
 from pay_api.services.payment_account import PaymentAccount
-from pay_api.utils.enums import TransactionStatus
+from pay_api.utils.enums import TransactionStatus, CfsAccountStatus
 from pay_api.utils.util import get_pay_subject_name
 from .payment_line_item import PaymentLineItem
 
@@ -93,7 +94,7 @@ class PaymentSystemService(ABC):  # pylint: disable=too-many-instance-attributes
         """Return the payment method code. E.g, CC, DRAWDOWN etc."""
 
     @abstractmethod
-    def get_default_invoice_status(self) -> str:
+    def get_default_invoice_status(self, payment_account: PaymentAccount = None) -> str:
         """Return the default status for invoice when created."""
 
     @abstractmethod
@@ -122,3 +123,12 @@ class PaymentSystemService(ABC):  # pylint: disable=too-many-instance-attributes
             current_app.logger.error('Notification to Queue failed for the Payment Event %s', payload)
             capture_message('Notification to Queue failed for the Payment Event : {msg}.'.format(msg=payload),
                             level='error')
+
+    @staticmethod
+    def _is_good_standing_account(payment_account: PaymentAccount = None):
+        """Check if account is in good standing."""
+        is_in_pad_confirmation_period = payment_account.pad_activation_date < datetime.now()
+        is_valid_cfs_account = payment_account.cfs_account_status not in (
+            CfsAccountStatus.PENDING_PAD_ACTIVATION.value, CfsAccountStatus.FREEZE.value)
+        is_good_standing = is_in_pad_confirmation_period and is_valid_cfs_account
+        return is_good_standing

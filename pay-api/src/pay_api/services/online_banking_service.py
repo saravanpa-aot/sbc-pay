@@ -34,7 +34,7 @@ class OnlineBankingService(PaymentSystemService, CFSService):
         """Return PAYBC as the system code."""
         return PaymentSystem.PAYBC.value
 
-    def get_default_invoice_status(self) -> str:
+    def get_default_invoice_status(self, payment_account: PaymentAccount = None) -> str:
         """Return CREATED as the default invoice status."""
         return InvoiceStatus.CREATED.value
 

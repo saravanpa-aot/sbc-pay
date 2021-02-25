@@ -92,7 +92,7 @@ class PaymentService:  # pylint: disable=too-few-public-methods
             invoice.bcol_account = bcol_account
             invoice.payment_account_id = payment_account.id
             invoice.cfs_account_id = payment_account.cfs_account_id
-            invoice.invoice_status_code = pay_service.get_default_invoice_status()
+            invoice.invoice_status_code = pay_service.get_default_invoice_status(payment_account=payment_account)
             #   TODO Change based on decision, whether to apply service fees for each line or not.
             #   For now add up the service fee on each fee schedule
             invoice.service_fees = sum(fee.service_fees for fee in fees) if fees else 0

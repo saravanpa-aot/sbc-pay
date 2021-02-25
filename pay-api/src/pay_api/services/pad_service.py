@@ -37,9 +37,11 @@ class PadService(PaymentSystemService, CFSService):
         """Return PAYBC as the system code."""
         return PaymentSystem.PAYBC.value
 
-    def get_default_invoice_status(self) -> str:
-        """Return CREATED as the default invoice status."""
-        return InvoiceStatus.CREATED.value
+    def get_default_invoice_status(self, payment_account: PaymentAccount = None) -> str:
+        """Return CREATED/ as the default invoice status."""
+        # check if its in good standing. checking
+        status = InvoiceStatus.APPROVED.value if self._is_good_standing_account() else InvoiceStatus.CREATED.value
+        return status
 
     def get_default_payment_status(self) -> str:
         """Return the default status for payment when created."""

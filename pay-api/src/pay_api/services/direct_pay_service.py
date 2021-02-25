@@ -101,7 +101,7 @@ class DirectPayService(PaymentSystemService, OAuthService):
         """Return DIRECT_PAY as the system code."""
         return PaymentMethod.DIRECT_PAY.value
 
-    def get_default_invoice_status(self) -> str:
+    def get_default_invoice_status(self, payment_account: PaymentAccount = None) -> str:
         """Return CREATED as the default invoice status."""
         return InvoiceStatus.CREATED.value
 
