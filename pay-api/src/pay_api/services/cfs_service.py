@@ -517,6 +517,21 @@ class CFSService(OAuthService):
         return cms_response.json()
 
     @classmethod
+    def reverse_rs_receipt_in_cfs(cls, cfs_account, receipt_number):
+        """Reverse Receipt."""
+        current_app.logger.debug('>Reverse receipt: %s', receipt_number)
+        access_token: str = CFSService.get_token().json().get('access_token')
+        cfs_base: str = current_app.config.get('CFS_BASE_URL')
+        receipt_url = f'{cfs_base}/cfs/parties/{cfs_account.cfs_party}/accs/{cfs_account.cfs_account}' \
+                      f'/sites/{cfs_account.cfs_site}/rcpts/{receipt_number}/reverse'
+        current_app.logger.debug('Receipt URL %s', receipt_url)
+        payload = {
+            'Reversal Reason': CFS_REVERSAL_REASON,
+            'Reversal comment': 'Linking Routing Slip'
+        }
+        return CFSService.post(receipt_url, access_token, AuthHeaderType.BEARER, ContentType.JSON, payload)
+
+    @classmethod
     def create_cms(cls, line_items: List[PaymentLineItemModel], cfs_account: CfsAccountModel) -> Dict[str, any]:
         """Create CM record in CFS."""
         current_app.logger.debug('>Creating CMS')
